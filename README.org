@@ -1,0 +1,187 @@
+#+TITLE: Python cloudant usage
+#+OPTIONS: ^:nil
+#+PROPERTY: header-args:sh :session *shell python-cloudant-usage sh* :results silent raw
+#+PROPERTY: header-args:python :session *shell python-cloudant-usage python* :results silent raw
+
+** System environment
+
+- Debian 9.11
+
+- CouchDB 3.1.0
+
+Python modules:
+
+cloudant==2.13.0
+
+** Install
+
+#+BEGIN_SRC sh
+pip install cloudant
+#+END_SRC
+
+** Import
+
+#+BEGIN_SRC python
+from cloudant.client import Cloudant
+#+END_SRC
+
+** Connections
+*** Connect
+
+Using URL
+
+#+BEGIN_SRC python :results replace code
+client = Cloudant("admin", "rawpassword", url="http://127.0.0.1:5984/", connect=True)
+client
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+{}
+#+end_src
+
+*** Perform client session
+
+#+BEGIN_SRC python :results replace code
+session = client.session()
+session
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+{'ok': True, 'userCtx': {'name': 'admin', 'roles': ['_admin']}, 'info': {'authentication_handlers': ['cookie', 'default'], 'authenticated': 'cookie'}}
+#+end_src
+
+*** Print all databases
+
+#+BEGIN_SRC python :results replace code
+client.all_dbs()
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+['test']
+#+end_src
+
+** Databases
+*** Creating a database
+
+#+BEGIN_SRC python
+my_database = client.create_database('my_database')
+#+END_SRC
+
+*** Opening a database
+
+#+BEGIN_SRC python
+my_database = client['my_database']
+#+END_SRC
+
+*** Checking if database exists
+
+#+BEGIN_SRC python
+my_database.exists()
+#+END_SRC
+
+
+*** Deleting a database
+
+#+BEGIN_SRC python
+client.delete_database('my_database')
+#+END_SRC
+
+** Documents
+*** Creating a document
+
+Create document content data.
+
+#+BEGIN_SRC python
+data = {
+    '_id': 'julia30', # Setting _id is optional
+    'name': 'Julia',
+    'age': 30,
+    'pets': ['cat', 'dog', 'frog']
+    }
+#+END_SRC
+
+Create a document using the Database API.
+
+#+BEGIN_SRC python
+my_document = my_database.create_document(data)
+#+END_SRC
+
+*** Retrieving a document
+
+#+BEGIN_SRC python :results replace code
+my_document = my_database['julia30']
+my_document
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+{'_id': 'julia30', '_rev': '1-1444fca728cf0049f884cf3b0e7c5685', 'name': 'Julia', 'age': 30, 'pets': ['cat', 'dog', 'frog']}
+#+end_src
+
+*** Checking if document exists
+
+Check that the document exists in the database.
+
+#+BEGIN_SRC python :results replace code
+my_document.exists()
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+True
+#+end_src
+
+-----
+
+#+BEGIN_SRC python :results replace code
+'julia30' in my_database
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+True
+#+end_src
+
+*** Retrieve all documents
+
+#+BEGIN_SRC python :results replace code
+[document for document in my_database]
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+[{'_id': 'julia30', '_rev': '1-1444fca728cf0049f884cf3b0e7c5685', 'name': 'Julia', 'age': 30, 'pets': ['cat', 'dog', 'frog']}]
+#+end_src
+
+*** Update a document
+
+#+BEGIN_SRC python
+my_document['name'] = 'Jules'
+my_document['age'] = 6
+#+END_SRC
+
+#+BEGIN_SRC python
+my_document.save()
+#+END_SRC
+
+#+BEGIN_SRC python :results replace code
+my_document
+#+END_SRC
+
+#+RESULTS:
+#+begin_src python
+{'_id': 'julia30', '_rev': '3-cba1f1e14c866673db4f65064581efa7', 'name': 'Jules', 'age': 6, 'pets': ['cat', 'dog', 'frog']}
+#+end_src
+
+*** Delete a document
+
+#+BEGIN_SRC python
+my_document.delete()
+#+END_SRC
+
+** References
+
+- https://python-cloudant.readthedocs.io/
